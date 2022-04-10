@@ -7,7 +7,14 @@ from multiprocessing.pool import ThreadPool as Pool
 import threading
 
 # Define end host and TCP port range
-host = "52.172.204.196"
+
+host = input("Enter target IP address:")
+ver = input("Do you want verbose scanning?:")
+verb=0
+if ver == 'y'or 'yes' or 'Y':
+	verb=1
+else:
+	verb=0
 open_ports=[]
 closed_ports=[]
 print("Scanning.....")
@@ -24,7 +31,7 @@ def scanner(dst_port):
             send_rst = sr1(
                 IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags='R'),
                 timeout=1,
-                verbose=0,
+                verbose=verb,
             )
             #open_ports.append(ds_port)
             return(f"{host}:{dst_port} is open.")
