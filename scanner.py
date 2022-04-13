@@ -27,6 +27,8 @@ def scanner(dst_port):
     if resp is None:
     	if verb:
         	return(f"{host}:{dst_port} is filtered (silently dropped).")
+	else:
+		pass
 
     elif(resp.haslayer(TCP)):
         if(resp.getlayer(TCP).flags == 0x12):
