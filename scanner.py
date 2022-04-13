@@ -7,32 +7,36 @@ from multiprocessing.pool import ThreadPool as Pool
 import threading
 
 # Define end host and TCP port range
-
 host = input("Enter target IP address:")
+
 ver = input("Do you want verbose scanning?:")
 verb=0
 if ver == 'y'or 'yes' or 'Y':
 	verb=1
 else:
 	verb=0
+
+
 open_ports=[]
 closed_ports=[]
 print("Scanning.....")
+
 def scanner(dst_port):
     src_port=random.randint(1025,65534)
     resp=sr1(IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=1,verbose=0,)
     if resp is None:
-    	pass
-        #return(f"{host}:{dst_port} is filtered (silently dropped).")
+    	if verb:
+        	return(f"{host}:{dst_port} is filtered (silently dropped).")
 
     elif(resp.haslayer(TCP)):
         if(resp.getlayer(TCP).flags == 0x12):
-            # Send a gratuitous RST to close the connection
+            # Bye Bye connection, reset closes connection
             send_rst = sr1(
                 IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags='R'),
                 timeout=1,
                 verbose=verb,
             )
+		
             #open_ports.append(ds_port)
             return(f"{host}:{dst_port} is open.")
 
@@ -57,41 +61,42 @@ def scn(port_range,pool_size):
 	  print (i)
 
 
+'''
+for dst_port in port_range:
+    print("Scanning.....",dst_port)
+    pool.apply_async(scanner,dst_port)
 
-#for dst_port in port_range:
- #   print("Scanning.....",dst_port)
-  #  pool.apply_async(scanner,dst_port)
+     src_port = random.randint(1025,65534)
+     resp = sr1(
+         IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=1,
+         verbose=0,
+     )
 
-    # src_port = random.randint(1025,65534)
-    # resp = sr1(
-    #     IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=1,
-    #     verbose=0,
-    # )
+     if resp is None:
+         print(f"{host}:{dst_port} is filtered (silently dropped).")
 
-    # if resp is None:
-    #     print(f"{host}:{dst_port} is filtered (silently dropped).")
+     elif(resp.haslayer(TCP)):
+         if(resp.getlayer(TCP).flags == 0x12):
+             # Send a gratuitous RST to close the connection
+             send_rst = sr(
+                 IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags='R'),
+                 timeout=1,
+                 verbose=0,
+             )
+             print(f"{host}:{dst_port} is open.")
 
-    # elif(resp.haslayer(TCP)):
-    #     if(resp.getlayer(TCP).flags == 0x12):
-    #         # Send a gratuitous RST to close the connection
-    #         send_rst = sr(
-    #             IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags='R'),
-    #             timeout=1,
-    #             verbose=0,
-    #         )
-    #         print(f"{host}:{dst_port} is open.")
+         elif (resp.getlayer(TCP).flags == 0x14):
+             print(f"{host}:{dst_port} is closed.")
 
-    #     elif (resp.getlayer(TCP).flags == 0x14):
-    #         print(f"{host}:{dst_port} is closed.")
+     elif(resp.haslayer(ICMP)):
+         if(
+             int(resp.getlayer(ICMP).type) == 3 and
+             int(resp.getlayer(ICMP).code) in [1,2,3,9,10,13]
+         ):
+             print(f"{host}:{dst_port} is filtered (silently dropped).")
 
-    # elif(resp.haslayer(ICMP)):
-    #     if(
-    #         int(resp.getlayer(ICMP).type) == 3 and
-    #         int(resp.getlayer(ICMP).code) in [1,2,3,9,10,13]
-    #     ):
-    #         print(f"{host}:{dst_port} is filtered (silently dropped).")
-
-
+'''
+#MULTITHREADING!!
 port_range1 = range(1,100)
 pool_size1=len(port_range1)
 
