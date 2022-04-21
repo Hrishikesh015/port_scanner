@@ -5,29 +5,31 @@ from tabnanny import verbose
 from scapy.all import ICMP, IP, sr1, TCP
 from multiprocessing.pool import ThreadPool as Pool
 import threading
+import socket
+import platform
 
 common_services={20:'FTP Data Transfer',21:'FTP Command Transfer',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',80:'HTTP',110:'POP3',119:'NNTP',123:'NTP',143:'IMAP',161:'SNMP',194:'IRC',443:'HTTPS'};
 
 # Define end host and TCP port range
 host = input("Enter target IP address:")
-
-ver = input("Do you want verbose scanning?:")
 verb=0
+ver = input("Do you want verbose scanning?:")
 if ver == 'y'or ver=='yes' or ver=='Y':
 	verb=1
 else:
 	verb=0
 
-
 open_ports=[]
 closed_ports=[]
+filtered_ports = []
 print("Scanning.....")
 def scanner(dst_port):
     src_port=random.randint(1025,65534)
     resp=sr1(IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=1,verbose=0,)
     if resp is None:
         if verb==1:
-            return(f"{host}:{dst_port} is filtered (silently dropped).")
+            #return(f"{host}:{dst_port} is filtered (silently dropped).")
+            filtered_ports.append(dst_port)
         else:
             pass
 
@@ -39,15 +41,17 @@ def scanner(dst_port):
                 timeout=1,
                 verbose=verb,
             )
-		
+
             #open_ports.append(ds_port)
             if dst_port in common_services:
-            	print(dst_port,"commonly runs",common_services[dst_port])
-            return(f"{host}:{dst_port} is open.")
+                print(dst_port,"commonly runs",common_services[dst_port])
+            open_ports.append(dst_port)
+            #return(f"{host}:{dst_port} is open.")
 
         elif (resp.getlayer(TCP).flags == 0x14 and verb):
             #closed_ports.append(dst_port)
-            return(f"{host}:{dst_port} is closed.")
+            closed_ports.append(dst_port)
+            #return(f"{host}:{dst_port} is closed.")
             
 
     elif(resp.haslayer(ICMP)):
@@ -55,7 +59,8 @@ def scanner(dst_port):
             int(resp.getlayer(ICMP).type) == 3 and
             int(resp.getlayer(ICMP).code) in [1,2,3,9,10,13]
         ):
-            return(f"{host}:{dst_port} is filtered (silently dropped).")
+        	filtered_ports.append(dst_port)
+            #return(f"{host}:{dst_port} is filtered (silently dropped).")
 # Send SYN with random Src Port for each Dst port
 
 def scn(port_range,pool_size):
@@ -64,6 +69,9 @@ def scn(port_range,pool_size):
 	for i in l :
 	 if str(i)!="None":
 	  print (i)
+	
+	
+
 
 
 '''
@@ -96,6 +104,8 @@ for dst_port in port_range:
              print(f"{host}:{dst_port} is filtered (silently dropped).")
 '''
 #MULTITHREADING!!
+
+
 port_range1 = range(1,100)
 pool_size1=len(port_range1)
 
@@ -127,6 +137,8 @@ port_range10 = range(900,1000)
 pool_size10=len(port_range10)
 
 
+
+
 t1=threading.Thread(target=scn(port_range1,pool_size1))
 t2=threading.Thread(target=scn(port_range2,pool_size2))
 t3=threading.Thread(target=scn(port_range3,pool_size3))
@@ -139,6 +151,8 @@ t9=threading.Thread(target=scn(port_range9,pool_size9))
 t10=threading.Thread(target=scn(port_range10,pool_size10))
 
 
+
+
 t1.start()
 t2.start()
 t3.start()
@@ -149,3 +163,8 @@ t7.start()
 t8.start()
 t9.start()
 t10.start()
+print("\n\n--------------FULLY QUALIFIED HOST NAME-----------\n\n")
+print(socket.getfqdn(host))
+print("\n\n--------------OPEN PORTS----------------")
+for i in open_ports:
+	print(i)
