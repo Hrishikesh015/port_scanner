@@ -1,7 +1,5 @@
 import random
 from ipaddress import IPv4Network
-from sys import flags
-from tabnanny import verbose
 from scapy.all import ICMP, IP, sr1, TCP
 from multiprocessing.pool import ThreadPool as Pool
 import threading
