@@ -173,8 +173,8 @@ def make_gui():
         hostentry=Entry(root,bg="#1c1c1c",fg="#00FFFF")
         hostentry.grid(row = 0,column = 1)
         verboselabel=Label(root ,text = "Enable Verbose:",bg="black",fg="#39ff14").grid(row = 1,column = 0)
-        verboseYes=Radiobutton(root,text="Yes",variable=verbose,value=1,bg="#1c1c1c",fg="#00FFFF",activebackground="#1c1c1c", activeforeground="#00FFFF",selectcolor="#1c1c1c").grid(row=2,column=0)
-        verboseNo=Radiobutton(root,text="No",variable=verbose,value=0,bg="#1c1c1c",fg="#00FFFF",activebackground="#1c1c1c", activeforeground="#00FFFF",selectcolor="#1c1c1c").grid(row=2,column=1)
+        verboseYes=Radiobutton(root,text="Yes",variable=verbose,value=1,bg="black",fg="#00FFFF",activebackground="black", activeforeground="#00FFFF",selectcolor="#1c1c1c").grid(row=2,column=0)
+        verboseNo=Radiobutton(root,text="No",variable=verbose,value=0,bg="black",fg="#00FFFF",activebackground="black", activeforeground="#00FFFF",selectcolor="#1c1c1c").grid(row=2,column=1)
         go=Button(root,text="Start Scan",bg="#1c1c1c",fg="#39ff14",activebackground="#1c1c1c", activeforeground="#00FFFF",command=run_prog).grid(row=3,column=0)
         root.mainloop()
         
