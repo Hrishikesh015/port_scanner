@@ -9,9 +9,14 @@ from functools import partial
 
 common_services={20:'FTP Data Transfer',21:'FTP Command Transfer',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',80:'HTTP',110:'POP3',119:'NNTP',123:'NTP',143:'IMAP',161:'SNMP',194:'IRC',443:'HTTPS'};
 
+open_ports=[]
+closed_ports=[]
+filtered_ports = []
+	
+
 def scanner(dst_port):
     src_port=random.randint(1025,65534)
-    resp=sr1(IP(dst=hostip)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=1,verbose=0,)
+    resp=sr1(IP(dst=host)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=1,verbose=0,)
     #resp.show()
     if resp is None:
         if verb==1:
@@ -64,105 +69,111 @@ def scn(port_range,pool_size):
 
 
 def run_prog():
-        host=hostentry.get()
-        verb=verbose.get()
-        resp=sr1(IP(dst=host)/TCP(sport=1025,dport=80,flags="S"),timeout=1,verbose=0,)
-        hostip=resp.src
-        open_ports=[]
-        closed_ports=[]
-        filtered_ports = []
-        print("Scanning.....")
+	global host
+	global hostip
+	host=hostentry.get()
+	if host[0] == 'w':
+		resp=sr1(IP(dst=host)/TCP(sport=1025,dport=80,flags="S"),timeout=1,verbose=0,)
+		hostip=resp.src
+	else:
+		hostip=host
+		resp=sr1(IP(dst=hostip)/TCP(sport=1025,dport=80,flags="S"),timeout=1,verbose=0,)
+	global verb
+	verb=verbose.get()
+	root.destroy()
+	print("Scanning.....")
 
                 
 
-        port_range1 = range(1,100)
-        pool_size1=len(port_range1)
+	port_range1 = range(1,100)
+	pool_size1=len(port_range1)
 
-        port_range2 = range(100,200)
-        pool_size2=len(port_range2)
+	port_range2 = range(100,200)
+	pool_size2=len(port_range2)
 
-        port_range3 = range(200,300)
-        pool_size3=len(port_range3)
+	port_range3 = range(200,300)
+	pool_size3=len(port_range3)
 
-        port_range4 = range(300,400)
-        pool_size4=len(port_range4)
+	port_range4 = range(300,400)
+	pool_size4=len(port_range4)
 
-        port_range5 = range(400,500)
-        pool_size5=len(port_range5)
+	port_range5 = range(400,500)
+	pool_size5=len(port_range5)
 
-        port_range6 = range(500,600)
-        pool_size6=len(port_range6)
+	port_range6 = range(500,600)
+	pool_size6=len(port_range6)
 
-        port_range7 = range(600,700)
-        pool_size7=len(port_range7)
+	port_range7 = range(600,700)
+	pool_size7=len(port_range7)
 
-        port_range8 = range(700,800)
-        pool_size8=len(port_range8)
+	port_range8 = range(700,800)
+	pool_size8=len(port_range8)
 
-        port_range9 = range(800,900)
-        pool_size9=len(port_range9)
+	port_range9 = range(800,900)
+	pool_size9=len(port_range9)
 
-        port_range10 = range(900,1000)
-        pool_size10=len(port_range10)
-
-
-
-
-        t1=threading.Thread(target=scn(port_range1,pool_size1))
-        t2=threading.Thread(target=scn(port_range2,pool_size2))
-        t3=threading.Thread(target=scn(port_range3,pool_size3))
-        t4=threading.Thread(target=scn(port_range4,pool_size4))
-        t5=threading.Thread(target=scn(port_range5,pool_size5))
-        t6=threading.Thread(target=scn(port_range6,pool_size6))
-        t7=threading.Thread(target=scn(port_range7,pool_size7))
-        t8=threading.Thread(target=scn(port_range8,pool_size8))
-        t9=threading.Thread(target=scn(port_range9,pool_size9))
-        t10=threading.Thread(target=scn(port_range10,pool_size10))
+	port_range10 = range(900,1000)
+	pool_size10=len(port_range10)
 
 
 
 
-        t1.start()
-        t2.start()
-        t3.start()
-        t4.start()
-        t5.start()
-        t6.start()
-        t7.start()
-        t8.start()
-        t9.start()
-        t10.start()
-
-        ttl=int(resp.ttl)
-        window=resp.window
-        print("\n\n-------------OS Detection------------\n\n")
-        if ttl==64 and window==5840:
-                print("Linux Kernel 2.4 or 2.6")
-        elif ttl==64 and window==5720:
-                print("Google's customized linux")
-        elif ttl==64 and window==65535:
-                print("FreeBSD")
-        elif ttl==128 and window==65535:
-                print("Windows XP")
-        elif ttl==128 and window==8192:
-                print("Windows 7,Vista and Server 2008")
-        elif ttl==255 and window==4128:
-                print("Cisco Router(iOS 12.4)")
-        else:
-                print("Unknown")
+	t1=threading.Thread(target=scn(port_range1,pool_size1))
+	t2=threading.Thread(target=scn(port_range2,pool_size2))
+	t3=threading.Thread(target=scn(port_range3,pool_size3))
+	t4=threading.Thread(target=scn(port_range4,pool_size4))
+	t5=threading.Thread(target=scn(port_range5,pool_size5))
+	t6=threading.Thread(target=scn(port_range6,pool_size6))
+	t7=threading.Thread(target=scn(port_range7,pool_size7))
+	t8=threading.Thread(target=scn(port_range8,pool_size8))
+	t9=threading.Thread(target=scn(port_range9,pool_size9))
+	t10=threading.Thread(target=scn(port_range10,pool_size10))
 
 
-        print("\n\n--------------FULLY QUALIFIED HOST NAME-----------\n\n")
-        print(socket.getfqdn(host))
-        print("\n\n--------------OPEN PORTS----------------")
-        for i in open_ports:
-                print(i)
+
+
+	t1.start()
+	t2.start()
+	t3.start()
+	t4.start()
+	t5.start()
+	t6.start()
+	t7.start()
+	t8.start()
+	t9.start()
+	t10.start()
+
+	ttl=int(resp.ttl)
+	window=resp.window
+	print("\n\n-------------OS Detection------------\n\n")
+	if ttl==64 and window==5840:
+		print("Linux Kernel 2.4 or 2.6")
+	elif ttl==64 and window==5720:
+		print("Google's customized linux")
+	elif ttl==64 and window==65535:
+		print("FreeBSD")
+	elif ttl==128 and window==65535:
+		print("Windows XP")
+	elif ttl==128 and window==8192:
+ 		print("Windows 7,Vista and Server 2008")
+	elif ttl==255 and window==4128:
+		print("Cisco Router(iOS 12.4)")
+	else:
+		print("Unknown")
+
+
+	print("\n\n--------------FULLY QUALIFIED HOST NAME-----------\n\n")
+	print(socket.getfqdn(host))
+	print("\n\n--------------OPEN PORTS----------------")
+	for i in open_ports:
+		print(i)
 
 
 
 
 def make_gui():
         global verbose
+        global root
         root=Tk()
         root.title("TCP Port Scanner")
         root.geometry("250x450")
